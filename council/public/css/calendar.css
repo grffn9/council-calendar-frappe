@@ -11,6 +11,26 @@
     margin-bottom: 20px;
 }
 
+.calendar-header button {
+    background: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #495057;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.calendar-header button:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.calendar-header button svg {
+    display: block;
+}
+
+
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
