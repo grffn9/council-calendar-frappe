@@ -1,0 +1,52 @@
+{% extends "templates/web.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="/assets/council/css/calendar.css">
+{% endblock %}
+
+{% block page_content %}
+<div class="calendar-wrapper">
+    <div class="calendar-header">
+        <button class="btn btn-default" id="prev-month">
+            <i class="fa fa-chevron-left"></i>
+        </button>
+        <h3 id="month-year-label"></h3>
+        <button class="btn btn-default" id="next-month">
+            <i class="fa fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Weekday Headers -->
+    <div class="calendar-weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+    </div>
+
+    <!-- Calendar Days Grid -->
+    <div class="calendar-grid" id="calendar-grid">
+        <!-- Rendered via JS -->
+    </div>
+</div>
+
+<!-- Event Modal (Optional, for details) -->
+<div class="modal fade" id="event-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Meeting Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="event-details"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/assets/council/js/calendar.js"></script>
+{% endblock %}
