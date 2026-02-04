@@ -5,10 +5,19 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "meeting_type",
   "meeting_date",
   "meeting_time"
  ],
  "fields": [
+  {
+   "fieldname": "meeting_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Meeting Type",
+   "options": "City Council Meeting\nStanding Committee Meeting",
+   "reqd": 1
+  },
   {
    "fieldname": "meeting_date",
    "fieldtype": "Date",

@@ -70,11 +70,12 @@ frappe.ready(function() {
 
     $("#save-agenda").click(function() {
         // Collect form data
+        const meetingType = $("#new-agenda-form select[name='meeting_type']").val();
         const date = $("#new-agenda-form input[name='meeting_date']").val();
         const time = $("#new-agenda-form input[name='meeting_time']").val();
         
-        if(!date || !time) {
-            frappe.msgprint("Please provide both Date and Time.");
+        if(!date || !time || !meetingType) {
+            frappe.msgprint("Please provide Meeting Type, Date and Time.");
             return;
         }
 
@@ -83,6 +84,7 @@ frappe.ready(function() {
             args: {
                 doc: {
                     doctype: 'Council Meeting',
+                    meeting_type: meetingType,
                     meeting_date: date,
                     meeting_time: time
                 }

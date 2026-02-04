@@ -64,6 +64,13 @@
             <div class="modal-body">
                 <form id="new-agenda-form">
                     <div class="form-group">
+                        <label>Meeting Type</label>
+                        <select class="form-control" name="meeting_type" required>
+                            <option value="City Council Meeting">City Council Meeting</option>
+                            <option value="Standing Committee Meeting">Standing Committee Meeting</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Date</label>
                         <input type="date" class="form-control" name="meeting_date" required>
                     </div>
