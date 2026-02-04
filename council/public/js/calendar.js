@@ -63,6 +63,50 @@ frappe.ready(function() {
         fetchEvents(year, month + 1);
     }
     
+    // Wire up "New Agenda" button
+    $("#btn-new-agenda").click(function() {
+        $("#new-agenda-modal").modal("show");
+    });
+
+    $("#save-agenda").click(function() {
+        // Collect form data
+        const date = $("#new-agenda-form input[name='meeting_date']").val();
+        const time = $("#new-agenda-form input[name='meeting_time']").val();
+        
+        if(!date || !time) {
+            frappe.msgprint("Please provide both Date and Time.");
+            return;
+        }
+
+        frappe.call({
+            method: 'frappe.client.insert',
+            args: {
+                doc: {
+                    doctype: 'Council Meeting',
+                    meeting_date: date,
+                    meeting_time: time
+                }
+            },
+            callback: function(r) {
+                if(!r.exc) {
+                    frappe.msgprint("Meeting Scheduled!");
+                    $("#new-agenda-modal").modal("hide");
+                    // Clear form
+                    $("#new-agenda-form")[0].reset();
+                    // Refresh calendar with current view
+                    const current = new Date(); // Or keep track of current view state
+                    // Re-rendering with current state would be ideal, but simple reload works
+                    // Or just re-call renderCalendar with the date active
+                    // Let's assume we want to refresh the view we are looking at? 
+                    // renderCalendar(stateDate); // Need to store stateDate globally in this scope or read text
+                    
+                    // Simple hack: re-click header label or just reload logic
+                    location.reload(); 
+                }
+            }
+        });
+    });
+
     function fetchEvents(year, month) {
         // Construct date range
         const startDate = `${year}-${String(month).padStart(2, '0')}-01`;

@@ -6,9 +6,22 @@
 
 .calendar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
+}
+
+.header-left-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adds space between the arrows */
+}
+
+.calendar-header h3 {
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .calendar-header button {
