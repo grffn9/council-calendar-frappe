@@ -70,9 +70,16 @@ frappe.ready(function() {
 
     $("#save-agenda").click(function() {
         // Collect form data
-        const meetingType = $("#new-agenda-form select[name='meeting_type']").val();
-        const date = $("#new-agenda-form input[name='meeting_date']").val();
-        const time = $("#new-agenda-form input[name='meeting_time']").val();
+        const form = $("#new-agenda-form");
+        const meetingType = form.find("select[name='meeting_type']").val();
+        const committee = form.find("select[name='committee']").val();
+        const date = form.find("input[name='meeting_date']").val();
+        const time = form.find("input[name='meeting_time']").val();
+        const endTime = form.find("input[name='meeting_end_time']").val();
+        const location = form.find("input[name='location']").val();
+        const address = form.find("textarea[name='address']").val();
+        const re = form.find("input[name='meeting_re']").val();
+        const additional = form.find("input[name='additional_info']").val();
         
         if(!date || !time || !meetingType) {
             frappe.msgprint("Please provide Meeting Type, Date and Time.");
@@ -85,8 +92,14 @@ frappe.ready(function() {
                 doc: {
                     doctype: 'Council Meeting',
                     meeting_type: meetingType,
+                    committee: committee,
                     meeting_date: date,
-                    meeting_time: time
+                    meeting_time: time,
+                    meeting_end_time: endTime,
+                    location: location,
+                    address: address,
+                    meeting_re: re,
+                    additional_info: additional
                 }
             },
             callback: function(r) {

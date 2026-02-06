@@ -55,7 +55,7 @@
 
 <!-- New Agenda Modal -->
 <div class="modal fade" id="new-agenda-modal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">New Agenda</h5>
@@ -63,26 +63,85 @@
             </div>
             <div class="modal-body">
                 <form id="new-agenda-form">
+                    
                     <div class="form-group">
                         <label>Meeting Type</label>
                         <select class="form-control" name="meeting_type" required>
+                            <option value="">Select a Meeting Type...</option>
                             <option value="City Council Meeting">City Council Meeting</option>
                             <option value="Standing Committee Meeting">Standing Committee Meeting</option>
                         </select>
                     </div>
+
                     <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" class="form-control" name="meeting_date" required>
+                        <label>Select a Committee</label>
+                        <select class="form-control" name="committee">
+                             <option value="">Select a Committee...</option>
+                             <option value="Finance">Finance Committee</option>
+                             <option value="Planning">Planning Committee</option>
+                             <option value="Executive">Executive Committee</option>
+                             <!-- Temporary hardcoded list as requested -->
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label>Time</label>
-                        <input type="time" class="form-control" name="meeting_time" required>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date of Meeting:</label>
+                                <div class="col-sm-8">
+                                    <input type="date" class="form-control" name="meeting_date" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Start Time:</label>
+                                <div class="col-sm-8">
+                                     <div class="input-group">
+                                        <input type="time" class="form-control" name="meeting_time" required>
+                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">End Time: <br><small>(optional)</small></label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="time" class="form-control" name="meeting_end_time">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="form-group">
+                                <label>Location of Meeting:</label>
+                                <input type="text" class="form-control" name="location">
+                            </div>
+                            <div class="form-group">
+                                <label>Address <small>(update as needed)</small></label>
+                                <textarea class="form-control" name="address" style="height: 60px;"></textarea>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Re: <small>(optional)</small></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="meeting_re">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Additional <small>(optional)</small></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="additional_info" placeholder="Use this to indicate information such as 'Cancelled', 'Rescheduled', etc">
+                        </div>
+                    </div>
+
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="save-agenda">Save</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

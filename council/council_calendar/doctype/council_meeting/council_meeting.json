@@ -6,8 +6,18 @@
  "engine": "InnoDB",
  "field_order": [
   "meeting_type",
+  "committee",
+  "sb_details",
   "meeting_date",
-  "meeting_time"
+  "meeting_time",
+  "meeting_end_time",
+  "cb_details",
+  "location",
+  "address",
+  "sb_more_info",
+  "meeting_re",
+  "additional_info",
+  "amended_from"
  ],
  "fields": [
   {
@@ -19,25 +29,78 @@
    "reqd": 1
   },
   {
+   "fieldname": "committee",
+   "fieldtype": "Data",
+   "label": "Committee"
+  },
+  {
+   "fieldname": "sb_details",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "meeting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Meeting Date",
+   "label": "Date of Meeting",
    "reqd": 1
   },
   {
    "fieldname": "meeting_time",
    "fieldtype": "Time",
    "in_list_view": 1,
-   "label": "Meeting Time",
+   "label": "Time Meeting will Start",
    "reqd": 1
+  },
+  {
+   "fieldname": "meeting_end_time",
+   "fieldtype": "Time",
+   "label": "Time Meeting will End (optional)"
+  },
+  {
+   "fieldname": "cb_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location of Meeting"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address (update as needed)"
+  },
+  {
+   "fieldname": "sb_more_info",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "meeting_re",
+   "fieldtype": "Data",
+   "label": "Re: (optional)"
+  },
+  {
+   "fieldname": "additional_info",
+   "fieldtype": "Data",
+   "description": "Use this to indicate information such as 'Cancelled', 'Rescheduled', etc",
+   "label": "Additional (optional)"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Council Meeting",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-04 14:55:33.603888",
+ "modified": "2026-02-06 14:53:16.122600",
  "modified_by": "Administrator",
  "module": "Council Calendar",
  "name": "Council Meeting",
