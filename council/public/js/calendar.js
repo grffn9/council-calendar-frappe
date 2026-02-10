@@ -106,19 +106,16 @@ frappe.ready(function() {
                 const tbody = $("#existing-meetings-list");
                 tbody.empty();
                 
-                if (r.message) {
+                if (r.message && r.message.length) {
                     r.message.forEach(mtg => {
                         const timeParts = mtg.meeting_time.split(':');
                         const timeLabel = `${timeParts[0]}:${timeParts[1]}`;
                         
-                        const row = $(`
-                            <tr style="cursor: pointer;" data-name="${mtg.name}">
-                                <td>${mtg.meeting_date}</td>
-                                <td>${timeLabel}</td>
-                                <td>${mtg.committee || mtg.meeting_type}</td>
-                                <td>${mtg.location || ''}</td>
-                            </tr>
-                        `);
+                        const row = $('<tr style="cursor: pointer;"></tr>').attr('data-name', mtg.name);
+                        $('<td></td>').text(mtg.meeting_date).appendTo(row);
+                        $('<td></td>').text(timeLabel).appendTo(row);
+                        $('<td></td>').text(mtg.committee || mtg.meeting_type).appendTo(row);
+                        $('<td></td>').text(mtg.location || '').appendTo(row);
                         
                         row.click(function() {
                             // Highlight row
@@ -314,10 +311,11 @@ frappe.ready(function() {
                          if (container.length) {
                              const timeParts = event.meeting_time.split(':');
                              const timeLabel = `${timeParts[0]}:${timeParts[1]}`;
-                             const eventHTML = `<div class="calendar-event" title="${event.name}" style="cursor: pointer;">
-                                                    ${timeLabel} Meeting
-                                                </div>`;
-                             container.append(eventHTML);
+                        const eventHTML = $(`<div class="calendar-event" style="cursor: pointer;">
+                                                ${timeLabel} Meeting
+                                            </div>`);
+                        eventHTML.attr('title', event.name);
+                        container.append(eventHTML);
                              
                              // Click handler for modal?
                              container.find('.calendar-event').last().click(function(e) {

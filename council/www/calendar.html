@@ -22,7 +22,7 @@
         <h3 id="month-year-label"></h3>
         {% if frappe.session.user != 'Guest' %}
         <div class="header-right-controls">
-            <button class="btn btn-secondary" id="btn-edit-agenda" style="margin-right: 10px;">Edit Existing Agenda</button>
+            <button class="btn btn-secondary" id="btn-edit-agenda">Edit Existing Agenda</button>
             <button class="btn btn-primary" id="btn-new-agenda">New Agenda</button>
         </div>
         {% endif %}
@@ -156,7 +156,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <div>
                     <button type="button" class="btn btn-danger mr-2" id="btn-delete-meeting" style="display: none;">Delete Meeting</button>
-                    <button class="btn btn-primary" id="btn-update-meeting-confirm">Update Meeting</button>
+                    <button type="button" class="btn btn-primary" id="btn-update-meeting-confirm">Update Meeting</button>
                 </div>
             </div>
         </div>
