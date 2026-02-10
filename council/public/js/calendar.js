@@ -85,7 +85,8 @@ frappe.ready(function() {
     function loadUpcomingMeetings() {
         const committee = $("#edit-agenda-committee").val();
         const filters = [
-            ['meeting_date', '>=', frappe.datetime.now_date()]
+            ['meeting_date', '>=', frappe.datetime.now_date()],
+            ['docstatus', '=', 0]
         ];
         
         if (committee) {
@@ -195,6 +196,12 @@ frappe.ready(function() {
                     frappe.msgprint("Meeting Updated Successfully");
                     $("#edit-agenda-modal").modal("hide");
                     renderCalendar(currentDate); // Refresh UI
+                } else {
+                    if(r._server_messages) {
+                        frappe.msgprint(JSON.parse(r._server_messages).join("<br>"));
+                    } else {
+                        frappe.msgprint("An error occurred while updating the meeting.");
+                    }
                 }
             }
         });
@@ -220,6 +227,12 @@ frappe.ready(function() {
                             frappe.msgprint("Meeting Deleted Successfully");
                             $("#edit-agenda-modal").modal("hide");
                             renderCalendar(currentDate); // Refresh UI
+                        } else {
+                            if(r._server_messages) {
+                                frappe.msgprint(JSON.parse(r._server_messages).join("<br>"));
+                            } else {
+                                frappe.msgprint("An error occurred while deleting the meeting.");
+                            }
                         }
                     }
                 });

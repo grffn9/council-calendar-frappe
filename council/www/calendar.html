@@ -20,10 +20,12 @@
             </button>
         </div>
         <h3 id="month-year-label"></h3>
+        {% if frappe.session.user != 'Guest' %}
         <div class="header-right-controls">
             <button class="btn btn-secondary" id="btn-edit-agenda" style="margin-right: 10px;">Edit Existing Agenda</button>
             <button class="btn btn-primary" id="btn-new-agenda">New Agenda</button>
         </div>
+        {% endif %}
     </div>
 
     <!-- Weekday Headers -->
@@ -69,16 +71,9 @@
                     <label>Select a Committee</label>
                     <select class="form-control" id="edit-agenda-committee">
                          <option value="">Select a Committee...</option>
-                         <option value="Economic Development">Economic Development</option>
-                         <option value="Education">Education</option>
-                         <option value="Municipal and Legislative Operations">Municipal and Legislative Operations</option>
-                         <option value="Public Health and Human Services">Public Health and Human Services</option>
-                         <option value="Public Safety">Public Safety</option>
-                         <option value="Public Service and Transportation">Public Service and Transportation</option>
-                         <option value="Public Works">Public Works</option>
-                         <option value="Traffic and Parking">Traffic and Parking</option>
-                         <option value="Urban Technologies, Innovation and Environment">Urban Technologies, Innovation and Environment</option>
-                         <option value="Veterans' Memorials, Parks and Recreation">Veterans' Memorials, Parks and Recreation</option>
+                         {% for committee in committees %}
+                         <option value="{{ committee.name }}">{{ committee.committee_name }}</option>
+                         {% endfor %}
                     </select>
                 </div>
 
@@ -192,16 +187,9 @@
                         <label>Select a Committee</label>
                         <select class="form-control" name="committee">
                              <option value="">Select a Committee...</option>
-                             <option value="Economic Development">Economic Development</option>
-                             <option value="Education">Education</option>
-                             <option value="Municipal and Legislative Operations">Municipal and Legislative Operations</option>
-                             <option value="Public Health and Human Services">Public Health and Human Services</option>
-                             <option value="Public Safety">Public Safety</option>
-                             <option value="Public Service and Transportation">Public Service and Transportation</option>
-                             <option value="Public Works">Public Works</option>
-                             <option value="Traffic and Parking">Traffic and Parking</option>
-                             <option value="Urban Technologies, Innovation and Environment">Urban Technologies, Innovation and Environment</option>
-                             <option value="Veterans' Memorials, Parks and Recreation">Veterans' Memorials, Parks and Recreation</option>
+                             {% for committee in committees %}
+                             <option value="{{ committee.name }}">{{ committee.committee_name }}</option>
+                             {% endfor %}
                         </select>
                     </div>
 
