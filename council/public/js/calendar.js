@@ -68,6 +68,137 @@ frappe.ready(function() {
         $("#new-agenda-modal").modal("show");
     });
 
+    // Wire up "Edit Existing Agenda" button
+    $("#btn-edit-agenda").click(function() {
+        $("#edit-agenda-modal").modal("show");
+        loadUpcomingMeetings();
+        // Hide update form initially
+        $("#update-meeting-form").hide();
+    });
+    
+    // Filter committee logic
+    $("#edit-agenda-committee").change(function() {
+        loadUpcomingMeetings();
+    });
+
+    function loadUpcomingMeetings() {
+        const committee = $("#edit-agenda-committee").val();
+        const filters = [
+            ['meeting_date', '>=', frappe.datetime.now_date()]
+        ];
+        
+        if (committee) {
+            filters.push(['committee', '=', committee]);
+        }
+
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'Council Meeting',
+                fields: ['name', 'meeting_date', 'meeting_time', 'committee', 'location', 'meeting_type'],
+                filters: filters,
+                order_by: 'meeting_date asc, meeting_time asc',
+                limit_page_length: 50
+            },
+            callback: function(r) {
+                const tbody = $("#existing-meetings-list");
+                tbody.empty();
+                
+                if (r.message) {
+                    r.message.forEach(mtg => {
+                        const timeParts = mtg.meeting_time.split(':');
+                        const timeLabel = `${timeParts[0]}:${timeParts[1]}`;
+                        
+                        const row = $(`
+                            <tr style="cursor: pointer;" data-name="${mtg.name}">
+                                <td>${mtg.meeting_date}</td>
+                                <td>${timeLabel}</td>
+                                <td>${mtg.committee || mtg.meeting_type}</td>
+                                <td>${mtg.location || ''}</td>
+                            </tr>
+                        `);
+                        
+                        row.click(function() {
+                            // Highlight row
+                            tbody.find('tr').removeClass('table-primary text-white bg-primary');
+                            $(this).addClass('table-primary text-white bg-primary');
+                            
+                            // Load into form
+                            loadMeetingForEdit(mtg.name);
+                        });
+                        
+                        tbody.append(row);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="4" class="text-center">No upcoming meetings found.</td></tr>');
+                }
+            }
+        });
+    }
+
+    function loadMeetingForEdit(name) {
+        frappe.call({
+            method: 'frappe.client.get',
+            args: {
+                doctype: 'Council Meeting',
+                name: name
+            },
+            callback: function(r) {
+                if(r.message) {
+                    const doc = r.message;
+                    const form = $("#update-meeting-form");
+                    form.show();
+                    
+                    form.find("input[name='meeting_name']").val(doc.name);
+                    form.find("input[name='meeting_date']").val(doc.meeting_date);
+                    form.find("input[name='meeting_time']").val(doc.meeting_time);
+                    form.find("input[name='meeting_end_time']").val(doc.meeting_end_time || '');
+                    form.find("input[name='location']").val(doc.location || '');
+                    form.find("textarea[name='address']").val(doc.address || '');
+                    form.find("input[name='meeting_re']").val(doc.meeting_re || '');
+                    form.find("input[name='additional_info']").val(doc.additional_info || '');
+
+                    // Scroll to form
+                    form[0].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    }
+
+    $("#btn-update-meeting-confirm").click(function() {
+        const form = $("#update-meeting-form");
+        const name = form.find("input[name='meeting_name']").val();
+        
+        if (!name) return;
+
+        const values = {
+            meeting_date: form.find("input[name='meeting_date']").val(),
+            meeting_time: form.find("input[name='meeting_time']").val(),
+            meeting_end_time: form.find("input[name='meeting_end_time']").val(),
+            location: form.find("input[name='location']").val(),
+            address: form.find("textarea[name='address']").val(),
+            meeting_re: form.find("input[name='meeting_re']").val(),
+            additional_info: form.find("input[name='additional_info']").val()
+        };
+
+        frappe.call({
+            method: 'frappe.client.set_value',
+            args: {
+                doctype: 'Council Meeting',
+                name: name,
+                fieldname: values
+            },
+            callback: function(r) {
+                if(!r.exc) {
+                    frappe.msgprint("Meeting Updated Successfully");
+                    $("#edit-agenda-modal").modal("hide");
+                    renderCalendar(currentDate); // Refresh UI
+                }
+            }
+        });
+    });
+
+
     $("#save-agenda").click(function() {
         // Collect form data
         const form = $("#new-agenda-form");
@@ -109,14 +240,7 @@ frappe.ready(function() {
                     // Clear form
                     $("#new-agenda-form")[0].reset();
                     // Refresh calendar with current view
-                    const current = new Date(); // Or keep track of current view state
-                    // Re-rendering with current state would be ideal, but simple reload works
-                    // Or just re-call renderCalendar with the date active
-                    // Let's assume we want to refresh the view we are looking at? 
-                    // renderCalendar(stateDate); // Need to store stateDate globally in this scope or read text
-                    
-                    // Simple hack: re-click header label or just reload logic
-                    location.reload(); 
+                    renderCalendar(currentDate); 
                 }
             }
         });
@@ -148,7 +272,7 @@ frappe.ready(function() {
                          if (container.length) {
                              const timeParts = event.meeting_time.split(':');
                              const timeLabel = `${timeParts[0]}:${timeParts[1]}`;
-                             const eventHTML = `<div class="calendar-event" title="${event.name}">
+                             const eventHTML = `<div class="calendar-event" title="${event.name}" style="cursor: pointer;">
                                                     ${timeLabel} Meeting
                                                 </div>`;
                              container.append(eventHTML);
@@ -156,7 +280,14 @@ frappe.ready(function() {
                              // Click handler for modal?
                              container.find('.calendar-event').last().click(function(e) {
                                 e.stopPropagation();
-                                frappe.msgprint(`Meeting ID: ${event.name}`);
+                                // Open Edit Modal directly
+                                $("#edit-agenda-modal").modal("show");
+                                $("#update-meeting-form").show(); // Show form immediately
+                                loadMeetingForEdit(event.name); // Load this specific meeting
+                                
+                                // Also load list in background or just clear it?
+                                // Better to load list so "back" is possible, but for now just load list:
+                                loadUpcomingMeetings();
                              });
                          }
                     });

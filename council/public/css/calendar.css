@@ -1,5 +1,4 @@
 .calendar-wrapper {
-    max_width: 900px;
     margin: 40px auto;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -17,14 +16,8 @@
     gap: 8px; /* Adds space between the arrows */
 }
 
-.calendar-header h3 {
-    margin: 0;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.calendar-header button {
+/* Use specific selector for navigation buttons to avoid affecting action buttons */
+.header-left-controls button {
     background: transparent;
     border: 1px solid #dee2e6;
     border-radius: 4px;
@@ -34,15 +27,27 @@
     transition: background-color 0.2s, color 0.2s;
 }
 
-.calendar-header button:hover {
+.header-left-controls button:hover {
     background-color: #e9ecef;
     color: #212529;
 }
 
-.calendar-header button svg {
+.header-left-controls button svg {
     display: block;
 }
 
+.header-right-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-header h3 {
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
 .calendar-weekdays {
     display: grid;
