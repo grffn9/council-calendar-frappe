@@ -74,6 +74,7 @@ frappe.ready(function() {
         loadUpcomingMeetings();
         // Hide update form initially
         $("#update-meeting-form").hide();
+        $("#btn-delete-meeting").hide();
     });
     
     // Filter committee logic
@@ -148,6 +149,7 @@ frappe.ready(function() {
                     const doc = r.message;
                     const form = $("#update-meeting-form");
                     form.show();
+                    $("#btn-delete-meeting").show();
                     
                     form.find("input[name='meeting_name']").val(doc.name);
                     form.find("input[name='meeting_date']").val(doc.meeting_date);
@@ -196,6 +198,33 @@ frappe.ready(function() {
                 }
             }
         });
+    });
+
+    $("#btn-delete-meeting").click(function() {
+        const form = $("#update-meeting-form");
+        const name = form.find("input[name='meeting_name']").val();
+        
+        if (!name) return;
+
+        frappe.confirm('Are you sure you want to delete this meeting? This action cannot be undone.',
+            () => {
+                // Yes
+                frappe.call({
+                    method: 'frappe.client.delete',
+                    args: {
+                        doctype: 'Council Meeting',
+                        name: name
+                    },
+                    callback: function(r) {
+                        if(!r.exc) {
+                            frappe.msgprint("Meeting Deleted Successfully");
+                            $("#edit-agenda-modal").modal("hide");
+                            renderCalendar(currentDate); // Refresh UI
+                        }
+                    }
+                });
+            }
+        );
     });
 
 
