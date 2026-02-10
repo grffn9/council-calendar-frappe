@@ -4,8 +4,20 @@
 <link rel="stylesheet" href="/assets/council/css/calendar.css">
 {% endblock %}
 
+<!-- 
+    Calendar Page Interface
+    
+    This template renders the public-facing calendar view.
+    It contains the structure for:
+    1. The monthly calendar grid.
+    2. Modals for viewing meeting details.
+    3. Management forms for creating and editing meetings (Agenda items).
+-->
+
 {% block page_content %}
+<!-- Main Calendar Container -->
 <div class="calendar-wrapper">
+    <!-- Month Navigation and Action Buttons -->
     <div class="calendar-header">
         <div class="header-left-controls">
             <button class="btn btn-default" id="prev-month">
@@ -59,6 +71,7 @@
 </div>
 
 <!-- Edit Agenda Modal -->
+<!-- Allows users to select a committee, view upcoming meetings, and edit details -->
 <div class="modal fade" id="edit-agenda-modal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -164,6 +177,7 @@
 </div>
 
 <!-- New Agenda Modal -->
+<!-- Form for scheduling a new Council Meeting -->
 <div class="modal fade" id="new-agenda-modal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">

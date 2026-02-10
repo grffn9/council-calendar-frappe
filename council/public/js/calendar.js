@@ -1,11 +1,30 @@
+/**
+ * Council Calendar Application Script
+ * 
+ * Use: Public-facing calendar interface
+ * Description: Handles the rendering of the monthly calendar grid, fetching of meeting events,
+ * and management (creation/editing) of Council Meeting documents via modal interfaces.
+ * 
+ * Dependencies:
+ * - jQuery (included in Frappe)
+ * - Frappe Framework Client API
+ */
+
 frappe.ready(function() {
     let currentDate = new Date();
     
+    /**
+     * Renders the calendar grid for the specified date's month.
+     * Clears the existing grid, calculates day positions, and fills in day cells.
+     * Triggers event fetching after rendering the grid.
+     * 
+     * @param {Date} date - The date object determining which month to display.
+     */
     function renderCalendar(date) {
         const year = date.getFullYear();
         const month = date.getMonth();
         
-        // Update header
+        // Update the header label with full month name and year
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
@@ -63,12 +82,17 @@ frappe.ready(function() {
         fetchEvents(year, month + 1);
     }
     
-    // Wire up "New Agenda" button
+    /**
+     * Event Listener: Open the "New Agenda" modal.
+     */
     $("#btn-new-agenda").click(function() {
         $("#new-agenda-modal").modal("show");
     });
 
-    // Wire up "Edit Existing Agenda" button
+    /**
+     * Event Listener: Open the "Edit Existing Agenda" modal.
+     * Also initializes the list of upcoming meetings.
+     */
     $("#btn-edit-agenda").click(function() {
         $("#edit-agenda-modal").modal("show");
         loadUpcomingMeetings();
@@ -77,11 +101,17 @@ frappe.ready(function() {
         $("#btn-delete-meeting").hide();
     });
     
-    // Filter committee logic
+    /**
+     * Event Listener: Filter the upcoming meetings list when committee selection changes.
+     */
     $("#edit-agenda-committee").change(function() {
         loadUpcomingMeetings();
     });
 
+    /**
+     * Retrieves a list of upcoming meetings and populates the table in the edit modal.
+     * Filters by committee if one is selected.
+     */
     function loadUpcomingMeetings() {
         const committee = $("#edit-agenda-committee").val();
         const filters = [
@@ -135,6 +165,11 @@ frappe.ready(function() {
         });
     }
 
+    /**
+     * Fetches details for a single meeting and populates the update form fields.
+     * 
+     * @param {string} name - The ID (name) of the Council Meeting document.
+     */
     function loadMeetingForEdit(name) {
         frappe.call({
             method: 'frappe.client.get',
@@ -165,6 +200,10 @@ frappe.ready(function() {
         });
     }
 
+    /**
+     * Event Listener: Confirm Button for Updating a Meeting.
+     * Collects form data and sends a set_value request to update the record.
+     */
     $("#btn-update-meeting-confirm").click(function() {
         const form = $("#update-meeting-form");
         const name = form.find("input[name='meeting_name']").val();
@@ -200,6 +239,10 @@ frappe.ready(function() {
                         frappe.msgprint("An error occurred while updating the meeting.");
                     }
                 }
+    /**
+     * Event Listener: Delete Button for a Meeting.
+     * Prompts for confirmation before deleting the record.
+     */
             }
         });
     });
@@ -234,6 +277,10 @@ frappe.ready(function() {
                     }
                 });
             }
+    /**
+     * Event Listener: Save Button for Creating a New Agenda.
+     * Validates input and creates a new Council Meeting document.
+     */
         );
     });
 
@@ -281,6 +328,12 @@ frappe.ready(function() {
                     // Refresh calendar with current view
                     renderCalendar(currentDate); 
                 }
+    /**
+     * Fetches meeting events for a specific month/year and renders them on the calendar.
+     * 
+     * @param {number} year - Four-digit year.
+     * @param {number} month - Month index (1-based for string formatting, but careful with Date logic).
+     */
             }
         });
     });
