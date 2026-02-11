@@ -11,6 +11,35 @@
  */
 
 frappe.ready(function() {
+    // Initialize namespace
+    frappe.provide('frappe.council');
+
+    /**
+     * Opens the PDF viewer in a modal dialog.
+     * @param {string} url - The URL of the PDF file to viewing.
+     */
+    frappe.council.open_pdf = function(url) {
+        // Construct the viewer URL with the file parameter
+        const viewerUrl = `/assets/council/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}`;
+        
+        // Create a Frappe Dialog containing the iframe
+        const d = new frappe.ui.Dialog({
+            title: 'Meeting Agenda',
+            fields: [
+                {
+                    fieldname: 'viewer_frame',
+                    fieldtype: 'HTML',
+                    options: `<iframe src="${viewerUrl}" style="width: 100%; height: 80vh; border: none;" allowfullscreen></iframe>`
+                }
+            ]
+        });
+        
+        // Adjust modal width to be wider for better viewing
+        d.$wrapper.find('.modal-dialog').css('max-width', '90%');
+        d.$wrapper.find('.modal-content').css('height', '90vh');
+        d.show();
+    };
+
     let currentDate = new Date();
     
     /**
@@ -361,7 +390,7 @@ frappe.ready(function() {
             method: 'frappe.client.get_list',
             args: {
                 doctype: 'Council Meeting',
-                fields: ['name', 'meeting_date', 'meeting_time'],
+                fields: ['name', 'meeting_date', 'meeting_time', 'agenda_pdf'],
                 filters: [
                     ['meeting_date', '>=', startDate],
                     ['meeting_date', '<=', endDate]
@@ -382,17 +411,22 @@ frappe.ready(function() {
                         eventHTML.attr('title', event.name);
                         container.append(eventHTML);
                              
-                             // Click handler for modal?
+                             // Click handler
                              container.find('.calendar-event').last().click(function(e) {
                                 e.stopPropagation();
-                                // Open Edit Modal directly
-                                $("#edit-agenda-modal").modal("show");
-                                $("#update-meeting-form").show(); // Show form immediately
-                                loadMeetingForEdit(event.name); // Load this specific meeting
                                 
-                                // Also load list in background or just clear it?
-                                // Better to load list so "back" is possible, but for now just load list:
-                                loadUpcomingMeetings();
+                                if (event.agenda_pdf) {
+                                    // Open PDF Viewer
+                                    frappe.council.open_pdf(event.agenda_pdf);
+                                } else {
+                                    // Open Edit Modal directly (fallback for admin/no-pdf)
+                                    $("#edit-agenda-modal").modal("show");
+                                    $("#update-meeting-form").show(); // Show form immediately
+                                    loadMeetingForEdit(event.name); // Load this specific meeting
+                                    
+                                    // Also load list in background
+                                    loadUpcomingMeetings();
+                                }
                              });
                          }
                     });
