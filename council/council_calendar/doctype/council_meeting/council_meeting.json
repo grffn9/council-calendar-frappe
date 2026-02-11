@@ -30,9 +30,9 @@
   },
   {
    "fieldname": "committee",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Committee",
-   "options": "Economic Development\nEducation\nMunicipal and Legislative Operations\nPublic Health and Human Services\nPublic Safety\nPublic Service and Transportation\nPublic Works\nTraffic and Parking\nUrban Technologies, Innovation and Environment\nVeterans' Memorials, Parks and Recreation"
+   "options": "Committee"
   },
   {
    "fieldname": "sb_details",

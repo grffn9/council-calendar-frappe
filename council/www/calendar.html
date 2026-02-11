@@ -4,8 +4,20 @@
 <link rel="stylesheet" href="/assets/council/css/calendar.css">
 {% endblock %}
 
+<!-- 
+    Calendar Page Interface
+    
+    This template renders the public-facing calendar view.
+    It contains the structure for:
+    1. The monthly calendar grid.
+    2. Modals for viewing meeting details.
+    3. Management forms for creating and editing meetings (Agenda items).
+-->
+
 {% block page_content %}
+<!-- Main Calendar Container -->
 <div class="calendar-wrapper">
+    <!-- Month Navigation and Action Buttons -->
     <div class="calendar-header">
         <div class="header-left-controls">
             <button class="btn btn-default" id="prev-month">
@@ -20,10 +32,12 @@
             </button>
         </div>
         <h3 id="month-year-label"></h3>
+        {% if frappe.session.user != 'Guest' %}
         <div class="header-right-controls">
-            <button class="btn btn-secondary" id="btn-edit-agenda" style="margin-right: 10px;">Edit Existing Agenda</button>
+            <button class="btn btn-secondary" id="btn-edit-agenda">Edit Existing Agenda</button>
             <button class="btn btn-primary" id="btn-new-agenda">New Agenda</button>
         </div>
+        {% endif %}
     </div>
 
     <!-- Weekday Headers -->
@@ -49,7 +63,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Meeting Details</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body" id="event-details"></div>
         </div>
@@ -57,28 +71,22 @@
 </div>
 
 <!-- Edit Agenda Modal -->
+<!-- Allows users to select a committee, view upcoming meetings, and edit details -->
 <div class="modal fade" id="edit-agenda-modal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Existing Meeting</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label>Select a Committee</label>
                     <select class="form-control" id="edit-agenda-committee">
                          <option value="">Select a Committee...</option>
-                         <option value="Economic Development">Economic Development</option>
-                         <option value="Education">Education</option>
-                         <option value="Municipal and Legislative Operations">Municipal and Legislative Operations</option>
-                         <option value="Public Health and Human Services">Public Health and Human Services</option>
-                         <option value="Public Safety">Public Safety</option>
-                         <option value="Public Service and Transportation">Public Service and Transportation</option>
-                         <option value="Public Works">Public Works</option>
-                         <option value="Traffic and Parking">Traffic and Parking</option>
-                         <option value="Urban Technologies, Innovation and Environment">Urban Technologies, Innovation and Environment</option>
-                         <option value="Veterans' Memorials, Parks and Recreation">Veterans' Memorials, Parks and Recreation</option>
+                         {% for committee in committees %}
+                         <option value="{{ committee.name }}">{{ committee.committee_name }}</option>
+                         {% endfor %}
                     </select>
                 </div>
 
@@ -161,7 +169,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <div>
                     <button type="button" class="btn btn-danger mr-2" id="btn-delete-meeting" style="display: none;">Delete Meeting</button>
-                    <button class="btn btn-primary" id="btn-update-meeting-confirm">Update Meeting</button>
+                    <button type="button" class="btn btn-primary" id="btn-update-meeting-confirm">Update Meeting</button>
                 </div>
             </div>
         </div>
@@ -169,12 +177,13 @@
 </div>
 
 <!-- New Agenda Modal -->
+<!-- Form for scheduling a new Council Meeting -->
 <div class="modal fade" id="new-agenda-modal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">New Agenda</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <form id="new-agenda-form">
@@ -192,16 +201,9 @@
                         <label>Select a Committee</label>
                         <select class="form-control" name="committee">
                              <option value="">Select a Committee...</option>
-                             <option value="Economic Development">Economic Development</option>
-                             <option value="Education">Education</option>
-                             <option value="Municipal and Legislative Operations">Municipal and Legislative Operations</option>
-                             <option value="Public Health and Human Services">Public Health and Human Services</option>
-                             <option value="Public Safety">Public Safety</option>
-                             <option value="Public Service and Transportation">Public Service and Transportation</option>
-                             <option value="Public Works">Public Works</option>
-                             <option value="Traffic and Parking">Traffic and Parking</option>
-                             <option value="Urban Technologies, Innovation and Environment">Urban Technologies, Innovation and Environment</option>
-                             <option value="Veterans' Memorials, Parks and Recreation">Veterans' Memorials, Parks and Recreation</option>
+                             {% for committee in committees %}
+                             <option value="{{ committee.name }}">{{ committee.committee_name }}</option>
+                             {% endfor %}
                         </select>
                     </div>
 
