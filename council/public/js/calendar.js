@@ -137,6 +137,24 @@ frappe.ready(function() {
     });
 
     /**
+     * Event Listener: Delegated click for meeting rows in the edit modal.
+     * Replaces individual row listeners for better performance and reliability.
+     */
+    $("#existing-meetings-list").on("click", "tr", function() {
+        const name = $(this).attr('data-name');
+        console.log("Meeting row clicked:", name);
+        
+        if (name) {
+            // Visual feedback
+            $(this).siblings().removeClass('table-primary text-white bg-primary');
+            $(this).addClass('table-primary text-white bg-primary');
+            
+            // Load form
+            loadMeetingForEdit(name);
+        }
+    });
+
+    /**
      * Retrieves a list of upcoming meetings and populates the table in the edit modal.
      * Filters by committee if one is selected.
      */
@@ -175,15 +193,6 @@ frappe.ready(function() {
                         $('<td></td>').text(mtg.committee || mtg.meeting_type).appendTo(row);
                         $('<td></td>').text(mtg.location || '').appendTo(row);
                         
-                        row.click(function() {
-                            // Highlight row
-                            tbody.find('tr').removeClass('table-primary text-white bg-primary');
-                            $(this).addClass('table-primary text-white bg-primary');
-                            
-                            // Load into form
-                            loadMeetingForEdit(mtg.name);
-                        });
-                        
                         tbody.append(row);
                     });
                 } else {
@@ -199,29 +208,45 @@ frappe.ready(function() {
      * @param {string} name - The ID (name) of the Council Meeting document.
      */
     function loadMeetingForEdit(name) {
+        console.log("loadMeetingForEdit called with:", name);
         if (!name) {
             frappe.msgprint("Error: No meeting ID provided.");
             return;
         }
         
         frappe.call({
-            method: 'frappe.client.get',
+            method: 'frappe.client.get_list',
             args: {
                 doctype: 'Council Meeting',
-                name: name
+                filters: { name: name },
+                fields: ['*'],
+                limit_page_length: 1
             },
             callback: function(r) {
-                if(r.message) {
-                    const doc = r.message;
+                if(r.message && r.message.length > 0) {
+                    const doc = r.message[0];
                     const form = $("#update-meeting-form");
+                    
+                    // Show form first
                     form.show();
                     $("#btn-delete-meeting").show();
                     
+                    // Helper to format time (HH:MM:SS -> HH:MM)
+                    const formatTime = (t) => {
+                        if (!t) return '';
+                        const parts = t.split(':');
+                        if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
+                        return t;
+                    };
+
+                    // Populate fields
                     form.find("input[name='meeting_name']").val(doc.name);
-                    form.find("input[name='meeting_name']").attr("data-original-val", doc.name); // Track it
+                    form.find("input[name='meeting_name']").attr("data-original-val", doc.name);
+                    
                     form.find("input[name='meeting_date']").val(doc.meeting_date);
-                    form.find("input[name='meeting_time']").val(doc.meeting_time);
-                    form.find("input[name='meeting_end_time']").val(doc.meeting_end_time || '');
+                    form.find("input[name='meeting_time']").val(formatTime(doc.meeting_time));
+                    form.find("input[name='meeting_end_time']").val(formatTime(doc.meeting_end_time));
+                    
                     form.find("input[name='location']").val(doc.location || '');
                     form.find("textarea[name='address']").val(doc.address || '');
                     form.find("input[name='meeting_re']").val(doc.meeting_re || '');
@@ -229,7 +254,9 @@ frappe.ready(function() {
 
                     // Scroll to form
                     setTimeout(() => {
-                        form[0].scrollIntoView({ behavior: 'smooth' });
+                        if (form[0]) {
+                            form[0].scrollIntoView({ behavior: 'smooth' });
+                        }
                     }, 100);
                 } else {
                      frappe.msgprint("Could not retrieve meeting details.");
@@ -315,10 +342,6 @@ frappe.ready(function() {
                     }
                 });
             }
-    /**
-     * Event Listener: Save Button for Creating a New Agenda.
-     * Validates input and creates a new Council Meeting document.
-     */
         );
     });
 
@@ -375,12 +398,6 @@ frappe.ready(function() {
                         frappe.msgprint("An error occurred while creating the meeting.");
                     }
                 }
-    /**
-     * Fetches meeting events for a specific month/year and renders them on the calendar.
-     * 
-     * @param {number} year - Four-digit year.
-     * @param {number} month - Month index (1-based for string formatting, but careful with Date logic).
-     */
             }
         });
     });
