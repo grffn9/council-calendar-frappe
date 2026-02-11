@@ -64,7 +64,6 @@ frappe.ready(function() {
         }
         
         // Next month filler
-        const totalGridCells = 42; // Standard calendar grid
         const usedCells = startDayIndex + totalDays;
         
         // Need to fill at least until the end of the required rows
@@ -247,6 +246,10 @@ frappe.ready(function() {
         });
     });
 
+    /**
+     * Event Listener: Delete Button for a Meeting.
+     * Prompts for confirmation before deleting the record.
+     */
     $("#btn-delete-meeting").click(function() {
         const form = $("#update-meeting-form");
         const name = form.find("input[name='meeting_name']").val();
@@ -284,7 +287,10 @@ frappe.ready(function() {
         );
     });
 
-
+    /**
+     * Event Listener: Save Button for Creating a New Agenda.
+     * Validates input and creates a new Council Meeting document.
+     */
     $("#save-agenda").click(function() {
         // Collect form data
         const form = $("#new-agenda-form");
@@ -338,6 +344,12 @@ frappe.ready(function() {
         });
     });
 
+    /**
+     * Fetches meeting events for a specific month/year and renders them on the calendar.
+     * 
+     * @param {number} year - Four-digit year.
+     * @param {number} month - Month index (1-based for string formatting, but careful with Date logic).
+     */
     function fetchEvents(year, month) {
         // Construct date range
         const startDate = `${year}-${String(month).padStart(2, '0')}-01`;

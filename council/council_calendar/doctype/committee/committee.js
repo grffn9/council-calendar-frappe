@@ -1,7 +1,8 @@
-// Copyright (c) 2026, Frappe Technologies and contributors
+// Copyright (c) 2026, TBD and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Committee', {
-	// refresh: function(frm) {
-	// }
-});
+// frappe.ui.form.on("Committee", {
+// 	refresh(frm) {
+
+// 	},
+// });
