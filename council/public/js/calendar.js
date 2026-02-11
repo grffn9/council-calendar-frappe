@@ -238,6 +238,10 @@ frappe.ready(function() {
                         frappe.msgprint("An error occurred while updating the meeting.");
                     }
                 }
+    /**
+     * Event Listener: Delete Button for a Meeting.
+     * Prompts for confirmation before deleting the record.
+     */
             }
         });
     });
@@ -276,6 +280,10 @@ frappe.ready(function() {
                     }
                 });
             }
+    /**
+     * Event Listener: Save Button for Creating a New Agenda.
+     * Validates input and creates a new Council Meeting document.
+     */
         );
     });
 
@@ -326,6 +334,12 @@ frappe.ready(function() {
                     // Refresh calendar with current view
                     renderCalendar(currentDate); 
                 }
+    /**
+     * Fetches meeting events for a specific month/year and renders them on the calendar.
+     * 
+     * @param {number} year - Four-digit year.
+     * @param {number} month - Month index (1-based for string formatting, but careful with Date logic).
+     */
             }
         });
     });
