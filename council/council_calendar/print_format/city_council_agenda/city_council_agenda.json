@@ -1,0 +1,8 @@
+{
+ "doc_type": "Council Meeting",
+ "doctype": "Print Format",
+ "module": "Council Calendar",
+ "name": "City Council Agenda",
+ "print_format_type": "Jinja",
+ "standard": "Yes"
+}

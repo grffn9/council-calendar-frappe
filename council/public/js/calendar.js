@@ -199,6 +199,11 @@ frappe.ready(function() {
      * @param {string} name - The ID (name) of the Council Meeting document.
      */
     function loadMeetingForEdit(name) {
+        if (!name) {
+            frappe.msgprint("Error: No meeting ID provided.");
+            return;
+        }
+        
         frappe.call({
             method: 'frappe.client.get',
             args: {
@@ -213,6 +218,7 @@ frappe.ready(function() {
                     $("#btn-delete-meeting").show();
                     
                     form.find("input[name='meeting_name']").val(doc.name);
+                    form.find("input[name='meeting_name']").attr("data-original-val", doc.name); // Track it
                     form.find("input[name='meeting_date']").val(doc.meeting_date);
                     form.find("input[name='meeting_time']").val(doc.meeting_time);
                     form.find("input[name='meeting_end_time']").val(doc.meeting_end_time || '');
@@ -222,7 +228,11 @@ frappe.ready(function() {
                     form.find("input[name='additional_info']").val(doc.additional_info || '');
 
                     // Scroll to form
-                    form[0].scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => {
+                        form[0].scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                } else {
+                     frappe.msgprint("Could not retrieve meeting details.");
                 }
             }
         });
@@ -267,14 +277,10 @@ frappe.ready(function() {
                         frappe.msgprint("An error occurred while updating the meeting.");
                     }
                 }
-    /**
-     * Event Listener: Delete Button for a Meeting.
-     * Prompts for confirmation before deleting the record.
-     */
             }
         });
     });
-
+    
     /**
      * Event Listener: Delete Button for a Meeting.
      * Prompts for confirmation before deleting the record.
@@ -362,6 +368,12 @@ frappe.ready(function() {
                     $("#new-agenda-form")[0].reset();
                     // Refresh calendar with current view
                     renderCalendar(currentDate); 
+                } else {
+                    if(r._server_messages) {
+                        frappe.msgprint(JSON.parse(r._server_messages).join("<br>"));
+                    } else {
+                        frappe.msgprint("An error occurred while creating the meeting.");
+                    }
                 }
     /**
      * Fetches meeting events for a specific month/year and renders them on the calendar.
@@ -411,22 +423,36 @@ frappe.ready(function() {
                         eventHTML.attr('title', event.name);
                         container.append(eventHTML);
                              
-                             // Click handler
-                             container.find('.calendar-event').last().click(function(e) {
-                                e.stopPropagation();
-                                
-                                if (event.agenda_pdf) {
-                                    // Open PDF Viewer
-                                    frappe.council.open_pdf(event.agenda_pdf);
-                                } else {
-                                    // Open Edit Modal directly (fallback for admin/no-pdf)
-                                    $("#edit-agenda-modal").modal("show");
-                                    $("#update-meeting-form").show(); // Show form immediately
-                                    loadMeetingForEdit(event.name); // Load this specific meeting
-                                    
-                                    // Also load list in background
-                                    loadUpcomingMeetings();
-                                }
+                             // Click Handlers (Single vs Double)
+                             let clicks = 0;
+                             let timer = null;
+                             
+                             const $event = container.find('.calendar-event').last();
+                             
+                             $event.on("click", function(e){
+                                 e.stopPropagation();
+                                 clicks++;
+                                 if(clicks === 1) {
+                                     timer = setTimeout(function() {
+                                         // Single Click Action -> Edit
+                                         $("#edit-agenda-modal").modal("show");
+                                         $("#update-meeting-form").show(); 
+                                         loadMeetingForEdit(event.name);
+                                         loadUpcomingMeetings();
+                                         clicks = 0;
+                                     }, 300); // 300ms delay to wait for potential second click
+                                 } else {
+                                     // Double Click Action -> View PDF
+                                     clearTimeout(timer);
+                                     clicks = 0;
+                                     if (event.agenda_pdf) {
+                                         frappe.council.open_pdf(event.agenda_pdf);
+                                     } else {
+                                         frappe.msgprint("No agenda PDF available yet. Please save the meeting again to generate it.");
+                                     }
+                                 }
+                             }).on("dblclick", function(e){
+                                 e.preventDefault(); // Prevent default double click behavior if any
                              });
                          }
                     });
