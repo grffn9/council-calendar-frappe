@@ -218,16 +218,14 @@ frappe.ready(function() {
         }
         
         frappe.call({
-            method: 'frappe.client.get_list',
+            method: 'frappe.client.get',
             args: {
                 doctype: 'Council Meeting',
-                filters: { name: name },
-                fields: ['*'],
-                limit_page_length: 1
+                name: name
             },
             callback: function(r) {
-                if(r.message && r.message.length > 0) {
-                    const doc = r.message[0];
+                if(r.message) {
+                    const doc = r.message;
                     const form = $("#update-meeting-form");
                     
                     // Show form first
