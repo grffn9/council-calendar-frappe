@@ -110,3 +110,10 @@
 .calendar-event:hover {
     background-color: #2563eb;
 }
+
+
+/* Agenda Items Styling */
+.agenda-content h1 { font-size: 24px; font-weight: bold; margin: 0; }
+.agenda-content h2 { font-size: 18px; margin: 5px 0; }
+.agenda-content h3 { font-size: 16px; margin: 5px 0; }
+.agenda-item { page-break-inside: avoid; }

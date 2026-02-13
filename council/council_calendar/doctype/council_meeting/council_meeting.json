@@ -17,6 +17,8 @@
   "sb_more_info",
   "meeting_re",
   "additional_info",
+  "agenda_items",
+  "agenda_pdf",
   "amended_from"
  ],
  "fields": [
@@ -85,6 +87,17 @@
    "fieldtype": "Data",
    "description": "Use this to indicate information such as 'Cancelled', 'Rescheduled', etc",
    "label": "Additional (optional)"
+  },
+  {
+   "fieldname": "agenda_items",
+   "fieldtype": "Table",
+   "label": "Agenda Items",
+   "options": "Agenda Item"
+  },
+  {
+   "fieldname": "agenda_pdf",
+   "fieldtype": "Attach",
+   "label": "Agenda PDF"
   },
   {
    "fieldname": "amended_from",

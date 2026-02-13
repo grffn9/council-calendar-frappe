@@ -1,0 +1,29 @@
+<div class="agenda-content">
+    <div class="text-center" style="margin-bottom: 30px;">
+        <h1>City of Worcester</h1>
+        <h2>City Council Meeting Agenda</h2>
+        <p>{{ doc.get_formatted("meeting_date") }} - {{ doc.meeting_time }}</p>
+        <p>{{ doc.location }}</p>
+    </div>
+    
+    <hr>
+    
+    <div class="items">
+        {% for item in doc.agenda_items %}
+        <div class="agenda-item" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 5px;">{{ loop.index }}. {{ item.item_title }}</h3>
+            <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                {% if item.presenter %}
+                <span><strong>Presenter:</strong> {{ item.presenter }}</span>
+                {% endif %}
+                {% if item.duration %}
+                <span style="margin-left: 15px;"><strong>Duration:</strong> {{ item.duration }}</span>
+                {% endif %}
+            </div>
+            <div class="item-description">
+                {{ item.description or '' }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

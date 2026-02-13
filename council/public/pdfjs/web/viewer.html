@@ -31,6 +31,17 @@ See https://github.com/adobe-type-tools/cmap-resources
 <link rel="resource" type="application/l10n" href="locale/locale.json" />
 <script src="../build/pdf.mjs" type="module"></script>
 
+<script>
+  // Force enable annotation tools
+  window.PDFViewerApplicationOptions = {
+      enableAnnotationEditor: true,
+      enableSignatureEditor: true,
+      enableComment: true,
+      enableStamp: true,
+      pdfBugEnabled: true
+  };
+</script>
+
     <link rel="stylesheet" href="viewer.css" />
 
   <script src="viewer.mjs" type="module"></script>
@@ -351,7 +362,7 @@ See https://github.com/adobe-type-tools/cmap-resources
               </div>
               <div id="toolbarViewerRight" class="toolbarHorizontalGroup">
                 <div id="editorModeButtons" class="toolbarHorizontalGroup">
-                  <div id="editorComment" class="toolbarButtonWithContainer" hidden="true">
+                  <div id="editorComment" class="toolbarButtonWithContainer">
                     <button
                       id="editorCommentButton"
                       class="toolbarButton"
@@ -383,7 +394,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                       </div>
                     </div>
                   </div>
-                  <div id="editorSignature" class="toolbarButtonWithContainer" hidden="true">
+                  <div id="editorSignature" class="toolbarButtonWithContainer">
                     <button
                       id="editorSignatureButton"
                       class="toolbarButton"
