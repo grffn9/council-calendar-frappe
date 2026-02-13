@@ -463,7 +463,7 @@ frappe.ready(function() {
                                  if (event.agenda_pdf) {
                                      frappe.council.open_pdf(event.agenda_pdf);
                                  } else {
-                                     frappe.msgprint("No agenda PDF available yet. Please save the meeting again to generate it.");
+                                     frappe.msgprint("The agenda PDF is being generated and will be available shortly.");
                                  }
                              }
                         }).on("dblclick", function(e){

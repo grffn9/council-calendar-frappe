@@ -20,6 +20,9 @@ class CouncilMeeting(Document):
 		"""
 		Manually trigger PDF generation (UI Button)
 		"""
+		if not self.has_permission("write"):
+			frappe.throw("You do not have permission to generate the Agenda PDF", frappe.PermissionError)
+
 		generate_agenda_pdf_job(self.name)
 
 @frappe.whitelist()
