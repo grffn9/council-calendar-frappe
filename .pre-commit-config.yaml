@@ -39,6 +39,7 @@ repos:
         exclude: |
             (?x)^(
                 council/public/dist/.*|
+                council/public/pdfjs/.*|
                 .*node_modules.*|
                 .*boilerplate.*|
                 council/templates/includes/.*|
@@ -56,6 +57,7 @@ repos:
         exclude: |
             (?x)^(
                 council/public/dist/.*|
+                council/public/pdfjs/.*|
                 cypress/.*|
                 .*node_modules.*|
                 .*boilerplate.*|
