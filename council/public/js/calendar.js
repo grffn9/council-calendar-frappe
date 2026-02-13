@@ -29,14 +29,26 @@ frappe.ready(function() {
             title: 'Meeting Agenda'
         });
         
-        const content = `<div style="width: 100%; height: 100%;">
-            <iframe src="${viewerUrl}" style="width: 100%; height: 80vh; border: none;" allowfullscreen></iframe>
-        </div>`;
-        
         d.show();
         
+        // Build content using DOM/jQuery APIs to avoid HTML string interpolation issues
+        d.$body.empty();
+        const $container = $('<div>').css({
+            width: '100%',
+            height: '100%'
+        });
+        const $iframe = $('<iframe>', {
+            src: viewerUrl,
+            allowfullscreen: true
+        }).css({
+            width: '100%',
+            height: '80vh',
+            border: 'none'
+        });
+        $container.append($iframe);
+
         // Inject content directly
-        d.$body.html(content);
+        d.$body.append($container);
         
         // Adjust modal width to be wider for better viewing
         d.$wrapper.find('.modal-dialog').css('max-width', '90%');
