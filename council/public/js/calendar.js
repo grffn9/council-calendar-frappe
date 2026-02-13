@@ -23,21 +23,24 @@ frappe.ready(function() {
         const viewerUrl = `/assets/council/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}`;
         
         // Create a Frappe Dialog containing the iframe
+        // Note: We inject HTML directly into the body to avoid 'make_control' errors 
+        // that can occur on public pages where the full Desk form library isn't loaded.
         const d = new frappe.ui.Dialog({
-            title: 'Meeting Agenda',
-            fields: [
-                {
-                    fieldname: 'viewer_frame',
-                    fieldtype: 'HTML',
-                    options: `<iframe src="${viewerUrl}" style="width: 100%; height: 80vh; border: none;" allowfullscreen></iframe>`
-                }
-            ]
+            title: 'Meeting Agenda'
         });
+        
+        const content = `<div style="width: 100%; height: 100%;">
+            <iframe src="${viewerUrl}" style="width: 100%; height: 80vh; border: none;" allowfullscreen></iframe>
+        </div>`;
+        
+        d.show();
+        
+        // Inject content directly
+        d.$body.html(content);
         
         // Adjust modal width to be wider for better viewing
         d.$wrapper.find('.modal-dialog').css('max-width', '90%');
         d.$wrapper.find('.modal-content').css('height', '90vh');
-        d.show();
     };
 
     let currentDate = new Date();
@@ -438,39 +441,38 @@ frappe.ready(function() {
                                                 ${timeLabel} Meeting
                                             </div>`);
                         eventHTML.attr('title', event.name);
-                        container.append(eventHTML);
-                             
-                             // Click Handlers (Single vs Double)
-                             let clicks = 0;
-                             let timer = null;
-                             
-                             const $event = container.find('.calendar-event').last();
-                             
-                             $event.on("click", function(e){
-                                 e.stopPropagation();
-                                 clicks++;
-                                 if(clicks === 1) {
-                                     timer = setTimeout(function() {
-                                         // Single Click Action -> Edit
-                                         $("#edit-agenda-modal").modal("show");
-                                         $("#update-meeting-form").show(); 
-                                         loadMeetingForEdit(event.name);
-                                         loadUpcomingMeetings();
-                                         clicks = 0;
-                                     }, 300); // 300ms delay to wait for potential second click
-                                 } else {
-                                     // Double Click Action -> View PDF
-                                     clearTimeout(timer);
+                        
+                        // Click Handlers (Single vs Double)
+                        let clicks = 0;
+                        let timer = null;
+                        
+                        eventHTML.on("click", function(e){
+                             e.stopPropagation();
+                             clicks++;
+                             if(clicks === 1) {
+                                 timer = setTimeout(function() {
+                                     // Single Click Action -> Edit
+                                     $("#edit-agenda-modal").modal("show");
+                                     $("#update-meeting-form").show(); 
+                                     loadMeetingForEdit(event.name);
+                                     loadUpcomingMeetings();
                                      clicks = 0;
-                                     if (event.agenda_pdf) {
-                                         frappe.council.open_pdf(event.agenda_pdf);
-                                     } else {
-                                         frappe.msgprint("No agenda PDF available yet. Please save the meeting again to generate it.");
-                                     }
+                                 }, 300); // 300ms delay to wait for potential second click
+                             } else {
+                                 // Double Click Action -> View PDF
+                                 clearTimeout(timer);
+                                 clicks = 0;
+                                 if (event.agenda_pdf) {
+                                     frappe.council.open_pdf(event.agenda_pdf);
+                                 } else {
+                                     frappe.msgprint("No agenda PDF available yet. Please save the meeting again to generate it.");
                                  }
-                             }).on("dblclick", function(e){
-                                 e.preventDefault(); // Prevent default double click behavior if any
-                             });
+                             }
+                        }).on("dblclick", function(e){
+                             e.preventDefault(); // Prevent default double click behavior if any
+                        });
+
+                        container.append(eventHTML);
                          }
                     });
                 }

@@ -7,21 +7,13 @@ from frappe.utils.pdf import get_pdf
 
 class CouncilMeeting(Document):
 	def after_insert(self):
-		# Generate PDF in background to avoid blocking the insert transaction
-		frappe.enqueue(
-			'council.council_calendar.doctype.council_meeting.council_meeting.generate_agenda_pdf_job',
-			queue='short',
-			doc_name=self.name
-		)
+		# Generate PDF synchronously to ensure it exists immediately
+		generate_agenda_pdf_job(self.name)
 
 	def on_update(self):
 		# Only generate if we aren't already saving the PDF URL (avoids recursion)
 		if not self.flags.in_pdf_generation:
-			frappe.enqueue(
-				'council.council_calendar.doctype.council_meeting.council_meeting.generate_agenda_pdf_job',
-				queue='short',
-				doc_name=self.name
-			)
+			generate_agenda_pdf_job(self.name)
 
 	@frappe.whitelist()
 	def generate_agenda_pdf(self):
@@ -30,7 +22,7 @@ class CouncilMeeting(Document):
 		"""
 		generate_agenda_pdf_job(self.name)
 
-
+@frappe.whitelist()
 def generate_agenda_pdf_job(doc_name):
 	"""
 	Background job to generate agenda PDF
