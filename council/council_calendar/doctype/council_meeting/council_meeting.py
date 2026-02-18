@@ -1,86 +1,114 @@
 # Copyright (c) 2026, TBD and contributors
 # For license information, please see license.txt
 
+import hashlib
+import json
+
 import frappe
 from frappe.model.document import Document
-from frappe.utils.pdf import get_pdf
+
+
+# Fields whose changes should trigger a PDF rebuild
+_PDF_TRIGGER_FIELDS = (
+	"meeting_type",
+	"committee",
+	"meeting_date",
+	"meeting_time",
+	"meeting_end_time",
+	"location",
+	"address",
+	"meeting_re",
+	"additional_info",
+	"agenda_items",
+)
+
 
 class CouncilMeeting(Document):
-	def after_insert(self):
-		# Generate PDF synchronously to ensure it exists immediately
-		generate_agenda_pdf_job(self.name)
+	# ── hooks ────────────────────────────────────────────────────────
 
 	def on_update(self):
-		# Only generate if we aren't already saving the PDF URL (avoids recursion)
-		if not self.flags.in_pdf_generation:
-			generate_agenda_pdf_job(self.name)
+		"""Enqueue a PDF job only when relevant content actually changed."""
+		if self.flags.get("skip_pdf_enqueue"):
+			return
+		if self._pdf_content_changed():
+			self._enqueue_pdf()
+
+	def after_insert(self):
+		"""Always generate a PDF for brand-new meetings."""
+		self._enqueue_pdf()
+
+	# ── manual trigger (button) ──────────────────────────────────────
 
 	@frappe.whitelist()
 	def generate_agenda_pdf(self):
-		"""
-		Manually trigger PDF generation (UI Button)
-		"""
+		"""Manually trigger PDF generation from the UI."""
 		if not self.has_permission("write"):
-			frappe.throw("You do not have permission to generate the Agenda PDF", frappe.PermissionError)
+			frappe.throw(
+				"You do not have permission to generate the Agenda PDF",
+				frappe.PermissionError,
+			)
+		self._enqueue_pdf()
+		frappe.msgprint("PDF generation has been queued.", indicator="blue", alert=True)
 
-		generate_agenda_pdf_job(self.name)
+	# ── private helpers ──────────────────────────────────────────────
+
+	def _enqueue_pdf(self):
+		"""Enqueue the background job with built-in deduplication."""
+		job_id = f"agenda_pdf_{self.name}"
+
+		frappe.enqueue(
+			"council.council_calendar.doctype.council_meeting.council_meeting_utils.generate_agenda_pdf_job",
+			queue="default",
+			timeout=300,
+			job_id=job_id,
+			deduplicate=True,
+			doc_name=self.name,
+			user=frappe.session.user,
+		)
+
+	def _pdf_content_changed(self) -> bool:
+		"""
+		Return True if any field that affects the PDF has been modified
+		since the last save.  Uses a lightweight hash so we never store
+		per-field old values.
+		"""
+		current_hash = self._content_hash(self)
+		previous = self.get_doc_before_save()
+		if not previous:
+			return True
+		previous_hash = self._content_hash(previous)
+		return current_hash != previous_hash
+
+	@staticmethod
+	def _content_hash(doc=None) -> str:
+		"""Deterministic hash of every field that feeds into the PDF."""
+		if doc is None:
+			return ""
+		parts = []
+		for field in _PDF_TRIGGER_FIELDS:
+			val = doc.get(field)
+			if isinstance(val, list):
+				# child table – serialise each row's meaningful fields
+				val = json.dumps(
+					[
+						{k: row.get(k) for k in ("item_title", "presenter", "duration", "description")}
+						for row in val
+					],
+					sort_keys=True,
+				)
+			parts.append(str(val) if val else "")
+		blob = "|".join(parts)
+		return hashlib.md5(blob.encode()).hexdigest()
+
 
 @frappe.whitelist()
-def generate_agenda_pdf_job(doc_name):
-	"""
-	Background job to generate agenda PDF
-	"""
-	doc = frappe.get_doc("Council Meeting", doc_name)
-	
-	# Set flag to prevent recursion during save/update
-	doc.flags.in_pdf_generation = True
-
-	if doc.meeting_type == "City Council Meeting":
-		print_format = "City Council Agenda"
-	else:
-		print_format = "Standing Committee Agenda"
-		
-	# Get HTML content
-	try:
-		html = frappe.get_print(
-			doctype=doc.doctype,
-			name=doc.name,
-			print_format=print_format,
-			as_pdf=False
-		)
-		
-		# Generate PDF
-		pdf_content = get_pdf(html)
-		
-		# Save file 
-		filename = f"Agenda-{doc.name}.pdf"
-		
-		# Check if file exists to update content or create new
-		existing_file = frappe.get_all("File", filters={
-			"attached_to_doctype": doc.doctype, 
-			"attached_to_name": doc.name,
-			"file_name": filename
-		}, limit=1)
-
-		if existing_file:
-			_file = frappe.get_doc("File", existing_file[0].name)
-			_file.content = pdf_content
-			_file.save()
-		else:
-			_file = frappe.get_doc({
-				"doctype": "File",
-				"file_name": filename,
-				"attached_to_doctype": doc.doctype,
-				"attached_to_name": doc.name,
-				"content": pdf_content,
-				"is_private": 0
-			})
-			_file.save()
-		
-		# Update the field value directly 
-		if doc.agenda_pdf != _file.file_url:
-			doc.db_set('agenda_pdf', _file.file_url)
-
-	except Exception as e:
-		frappe.log_error(f"Failed to generate PDF for {doc_name}: {str(e)}", "Agenda PDF Generation Error")
-		raise e
+def test_socket_connection(doc_name=None):
+	"""DEBUG: Fires a realtime event directly from the web worker (no background job)."""
+	user = frappe.session.user
+	print(f"--- test_socket_connection called by user: {user} ---")
+	frappe.publish_realtime(
+		event="council_meeting_pdf_generated",
+		message={"doc_name": doc_name or "TEST", "file_url": "/test", "test": True},
+		user=user,
+	)
+	return {"status": "ok", "user": user}
